@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect
 import os
 import pandas as pd
 from datetime import datetime
@@ -8,58 +8,34 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def get_collection_name(file_path):
-    if os.path.exists(file_path):
-        try:
-            creation_date = datetime.utcfromtimestamp(os.path.getctime(file_path)).strftime('%B %d, %Y')
-            return creation_date
-        except Exception as e:
-            print(f"Error occurred while getting creation date: {e}")
-            return None
-    else:
-        print(f"File '{file_path}' does not exist.")
-        return None
-
-def parse_excel_sheets(input_files):
+def parse_excel_sheets(file_paths):
     line_data = {}
-    for file_name in input_files:
-        xl = pd.ExcelFile(file_name)
+    for file_path in file_paths:
+        xl = pd.ExcelFile(file_path)
         for sheet_name in xl.sheet_names:
             df = xl.parse(sheet_name)
-            line_number = sheet_name.split()[-1]
-            if line_number not in line_data:
-                line_data[line_number] = []
-            line_data[line_number].append(df)
+            line_name = df['line'].iloc[0]  # Assuming the line name is in the 'line' column
+            if line_name not in line_data:
+                line_data[line_name] = []
+            line_data[line_name].append(df)
     return line_data
 
-
 def save_line_data_to_excel(line_data, output_dir):
-    for line_number, data_frames in line_data.items():
-        concatenated_df = pd.concat(data_frames)
-        if len(line_data) > 1:
-            line_output_dir = os.path.join(output_dir, f"line_{line_number}")
-            os.makedirs(line_output_dir, exist_ok=True)
-            output_file = f"{line_output_dir}/line_{line_number}.xlsx"
-        else:
-            output_file = f"{output_dir}/master_file.xlsx"
-        concatenated_df.to_excel(output_file, index=False)
-
-def create_master_file(line_data, output_dir):
-    master_df = pd.concat(line_data.values(), keys=line_data.keys(), names=['Line'])
-    master_file = os.path.join(output_dir, 'master_file.xlsx')
-    with pd.ExcelWriter(master_file) as writer:
-        for line_number, data_frames in line_data.items():
-            data_frames[0].to_excel(writer, sheet_name=f'Line_{line_number}', index=False)
-        master_df.to_excel(writer, sheet_name='Master', index=False)
+    os.makedirs(output_dir, exist_ok=True)  # Create output directory if it doesn't exist
+    for line_name, data_frames in line_data.items():
+        output_file = os.path.join(output_dir, f"{line_name}.xlsx")
+        pd.concat(data_frames).to_excel(output_file, index=False)
 
 def update_master_file(line_data, output_dir):
     master_file = os.path.join(output_dir, 'master_file.xlsx')
     if os.path.exists(master_file):
-        with pd.ExcelWriter(master_file, mode='a') as writer:
-            for line_number, data_frames in line_data.items():
-                data_frames[0].to_excel(writer, sheet_name=f'Line_{line_number}', index=False)
+        with pd.ExcelWriter(master_file, mode='a', engine='openpyxl') as writer:
+            for line_name, data_frames in line_data.items():
+                pd.concat(data_frames).to_excel(writer, sheet_name=line_name, index=False)
     else:
-        create_master_file(line_data, output_dir)
+        with pd.ExcelWriter(master_file, engine='openpyxl') as writer:
+            for line_name, data_frames in line_data.items():
+                pd.concat(data_frames).to_excel(writer, sheet_name=line_name, index=False)
 
 @app.route('/')
 def index():
@@ -109,7 +85,6 @@ def process(collection_name):
             
             # Create output directory inside the collection directory
             output_dir = os.path.join(collection_dir, 'output')
-            os.makedirs(output_dir, exist_ok=True)
             
             save_line_data_to_excel(line_data, output_dir)
             update_master_file(line_data, output_dir)
