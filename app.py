@@ -35,26 +35,31 @@ def parse_excel_sheets(input_files):
         line_data[line_number] = pd.concat(data_frames)
     return line_data
 
-
 def save_line_data_to_excel(line_data, output_dir):
-    for line_number, df in line_data.items():
-        output_file = f"{output_dir}/line_{line_number}.xlsx"
-        df.to_excel(output_file, index=False)
+    for line_number, data_frames in line_data.items():
+        concatenated_df = pd.concat(data_frames)
+        if len(line_data) > 1:
+            output_file = f"{output_dir}/line_{line_number}.xlsx"
+        else:
+            output_file = f"{output_dir}/master_file.xlsx"
+        concatenated_df.to_excel(output_file, index=False)
 
 def create_master_file(line_data, output_dir):
     master_df = pd.concat(line_data.values(), keys=line_data.keys(), names=['Line'])
     master_file = os.path.join(output_dir, 'master_file.xlsx')
     master_df.to_excel(master_file)
 
-def update_master_file(line_data, output_dir):
-    master_file = os.path.join(output_dir, 'master_file.xlsx')
+def update_master_file(line_data, collection_dir):
+    master_dir = os.path.join(collection_dir, 'output')
+    os.makedirs(master_dir, exist_ok=True)
+    master_file = os.path.join(master_dir, 'master_file.xlsx')
     if os.path.exists(master_file):
         master_df = pd.read_excel(master_file, index_col=[0, 1])
         for line_number, data_frames in line_data.items():
             master_df.loc[line_number] = pd.concat(data_frames)
         master_df.to_excel(master_file)
     else:
-        create_master_file(line_data, output_dir)
+        create_master_file(line_data, master_dir)
 
 @app.route('/')
 def index():
@@ -101,10 +106,7 @@ def process(collection_name):
         if os.path.exists(collection_dir) and os.path.isdir(collection_dir):
             files = [os.path.join(collection_dir, filename) for filename in os.listdir(collection_dir)]
             line_data = parse_excel_sheets(files)
-            output_dir = 'output'
-            os.makedirs(output_dir, exist_ok=True)
-            save_line_data_to_excel(line_data, output_dir)
-            update_master_file(line_data, output_dir)
+            update_master_file(line_data, collection_dir)
             return render_template('process_success.html')  # Provide feedback for successful processing
         else:
             error_message = f"Collection '{collection_name}' not found."
