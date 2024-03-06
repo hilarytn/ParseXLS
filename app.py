@@ -18,11 +18,11 @@ def parse_excel_sheets(input_files):
         xl = pd.ExcelFile(file_name)
         for sheet_name in xl.sheet_names:
             df = xl.parse(sheet_name)
-            line_number = sanitize_sheet_name(sheet_name.split()[-1])
+            line_number = sheet_name.split()[-1]
             if line_number not in line_data:
-                line_data[line_number] = df
+                line_data[line_number] = [df]
             else:
-                line_data[line_number] = pd.concat([line_data[line_number], df], ignore_index=True)
+                line_data[line_number].append(df)
     return line_data
 
 
@@ -35,7 +35,6 @@ def update_master_file(line_data, output_dir):
         for line_name, df in line_data.items():
             sheet_name = sanitize_sheet_name(line_name)
             df.to_excel(writer, sheet_name=sheet_name, index=False)
-
 
 @app.route('/')
 def index():
