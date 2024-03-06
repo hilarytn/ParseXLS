@@ -29,9 +29,13 @@ def parse_excel_sheets(input_files):
 def update_master_file(line_data, output_dir):
     master_file = os.path.join(output_dir, 'master_file.xlsx')
     with pd.ExcelWriter(master_file, engine='openpyxl') as writer:
+        master_df = pd.concat(line_data.values(), keys=line_data.keys(), names=['Line'])
+        master_df.to_excel(writer, sheet_name='Master', index=False)
+        
         for line_name, df in line_data.items():
             sheet_name = sanitize_sheet_name(line_name)
             df.to_excel(writer, sheet_name=sheet_name, index=False)
+
 
 @app.route('/')
 def index():
