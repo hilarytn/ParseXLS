@@ -8,23 +8,26 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-def parse_excel_sheets(file_paths):
+def parse_excel_sheets(input_files):
     line_data = {}
-    for file_path in file_paths:
-        xl = pd.ExcelFile(file_path)
+    for file_name in input_files:
+        xl = pd.ExcelFile(file_name)
         for sheet_name in xl.sheet_names:
             df = xl.parse(sheet_name)
-            line_name = df['line'].iloc[0]  # Assuming the line name is in the 'line' column
-            if line_name not in line_data:
-                line_data[line_name] = []
-            line_data[line_name].append(df)
+            line_number = sheet_name.split()[-1]
+            if line_number not in line_data:
+                line_data[line_number] = df
+            else:
+                line_data[line_number] = pd.concat([line_data[line_number], df], ignore_index=True)
     return line_data
 
+
 def save_line_data_to_excel(line_data, output_dir):
-    os.makedirs(output_dir, exist_ok=True)  # Create output directory if it doesn't exist
-    for line_name, data_frames in line_data.items():
-        output_file = os.path.join(output_dir, f"{line_name}.xlsx")
-        pd.concat(data_frames).to_excel(output_file, index=False)
+    for line_number, df in line_data.items():
+        if not df.empty:
+            output_file = os.path.join(output_dir, f"line_{line_number}.xlsx")
+            df.to_excel(output_file, index=False)
+
 
 def update_master_file(line_data, output_dir):
     master_file = os.path.join(output_dir, 'master_file.xlsx')
