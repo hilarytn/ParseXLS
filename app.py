@@ -2,11 +2,15 @@ from flask import Flask, render_template, request, redirect
 import os
 import pandas as pd
 from datetime import datetime
+import re
 
 app = Flask(__name__)
 
 UPLOAD_FOLDER = 'uploads'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def sanitize_sheet_name(sheet_name):
+    return re.sub(r'[^\w\s]', '_', sheet_name)
 
 def parse_excel_sheets(input_files):
     line_data = {}
@@ -14,7 +18,7 @@ def parse_excel_sheets(input_files):
         xl = pd.ExcelFile(file_name)
         for sheet_name in xl.sheet_names:
             df = xl.parse(sheet_name)
-            line_number = sheet_name.split()[-1]
+            line_number = sanitize_sheet_name(sheet_name.split()[-1])
             if line_number not in line_data:
                 line_data[line_number] = df
             else:
@@ -22,23 +26,12 @@ def parse_excel_sheets(input_files):
     return line_data
 
 
-def save_line_data_to_excel(line_data, output_dir):
-    for line_number, df in line_data.items():
-        if not df.empty:
-            output_file = os.path.join(output_dir, f"line_{line_number}.xlsx")
-            df.to_excel(output_file, index=False)
-
-
 def update_master_file(line_data, output_dir):
     master_file = os.path.join(output_dir, 'master_file.xlsx')
-    if os.path.exists(master_file):
-        with pd.ExcelWriter(master_file, mode='a', engine='openpyxl') as writer:
-            for line_name, data_frames in line_data.items():
-                pd.concat(data_frames).to_excel(writer, sheet_name=line_name, index=False)
-    else:
-        with pd.ExcelWriter(master_file, engine='openpyxl') as writer:
-            for line_name, data_frames in line_data.items():
-                pd.concat(data_frames).to_excel(writer, sheet_name=line_name, index=False)
+    with pd.ExcelWriter(master_file, engine='openpyxl') as writer:
+        for line_name, df in line_data.items():
+            sheet_name = sanitize_sheet_name(line_name)
+            df.to_excel(writer, sheet_name=sheet_name, index=False)
 
 @app.route('/')
 def index():
@@ -88,8 +81,8 @@ def process(collection_name):
             
             # Create output directory inside the collection directory
             output_dir = os.path.join(collection_dir, 'output')
+            os.makedirs(output_dir, exist_ok=True)
             
-            save_line_data_to_excel(line_data, output_dir)
             update_master_file(line_data, output_dir)
             return render_template('process_success.html')  # Provide feedback for successful processing
         else:
