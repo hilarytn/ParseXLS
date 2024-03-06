@@ -30,16 +30,16 @@ def parse_excel_sheets(input_files):
             if line_number not in line_data:
                 line_data[line_number] = []
             line_data[line_number].append(df)
-    # Convert lists of DataFrames to concatenated DataFrames
-    for line_number, data_frames in line_data.items():
-        line_data[line_number] = pd.concat(data_frames)
     return line_data
+
 
 def save_line_data_to_excel(line_data, output_dir):
     for line_number, data_frames in line_data.items():
         concatenated_df = pd.concat(data_frames)
         if len(line_data) > 1:
-            output_file = f"{output_dir}/line_{line_number}.xlsx"
+            line_output_dir = os.path.join(output_dir, f"line_{line_number}")
+            os.makedirs(line_output_dir, exist_ok=True)
+            output_file = f"{line_output_dir}/line_{line_number}.xlsx"
         else:
             output_file = f"{output_dir}/master_file.xlsx"
         concatenated_df.to_excel(output_file, index=False)
@@ -47,19 +47,19 @@ def save_line_data_to_excel(line_data, output_dir):
 def create_master_file(line_data, output_dir):
     master_df = pd.concat(line_data.values(), keys=line_data.keys(), names=['Line'])
     master_file = os.path.join(output_dir, 'master_file.xlsx')
-    master_df.to_excel(master_file)
-
-def update_master_file(line_data, collection_dir):
-    master_dir = os.path.join(collection_dir, 'output')
-    os.makedirs(master_dir, exist_ok=True)
-    master_file = os.path.join(master_dir, 'master_file.xlsx')
-    if os.path.exists(master_file):
-        master_df = pd.read_excel(master_file, index_col=[0, 1])
+    with pd.ExcelWriter(master_file) as writer:
         for line_number, data_frames in line_data.items():
-            master_df.loc[line_number] = pd.concat(data_frames)
-        master_df.to_excel(master_file)
+            data_frames[0].to_excel(writer, sheet_name=f'Line_{line_number}', index=False)
+        master_df.to_excel(writer, sheet_name='Master', index=False)
+
+def update_master_file(line_data, output_dir):
+    master_file = os.path.join(output_dir, 'master_file.xlsx')
+    if os.path.exists(master_file):
+        with pd.ExcelWriter(master_file, mode='a') as writer:
+            for line_number, data_frames in line_data.items():
+                data_frames[0].to_excel(writer, sheet_name=f'Line_{line_number}', index=False)
     else:
-        create_master_file(line_data, master_dir)
+        create_master_file(line_data, output_dir)
 
 @app.route('/')
 def index():
@@ -90,7 +90,7 @@ def upload():
         if uploaded_files:
             # Provide feedback to the user that files were successfully uploaded
             message = f"Uploaded files: {', '.join(uploaded_files)}"
-            return render_template('upload_success.html', message=message)
+            return render_template('upload_success.html', message=message, collection_name=collection_name)
         else:
             # Provide feedback to the user that no files were uploaded
             return render_template('upload_failure.html')
@@ -99,14 +99,20 @@ def upload():
         return render_template('upload_failure.html', error_message=error_message)
 
 
-@app.route('/process/<collection_name>')
+@app.route('/process/<collection_name>', methods=['POST'])
 def process(collection_name):
     try:
         collection_dir = os.path.join(app.config['UPLOAD_FOLDER'], collection_name)
         if os.path.exists(collection_dir) and os.path.isdir(collection_dir):
             files = [os.path.join(collection_dir, filename) for filename in os.listdir(collection_dir)]
             line_data = parse_excel_sheets(files)
-            update_master_file(line_data, collection_dir)
+            
+            # Create output directory inside the collection directory
+            output_dir = os.path.join(collection_dir, 'output')
+            os.makedirs(output_dir, exist_ok=True)
+            
+            save_line_data_to_excel(line_data, output_dir)
+            update_master_file(line_data, output_dir)
             return render_template('process_success.html')  # Provide feedback for successful processing
         else:
             error_message = f"Collection '{collection_name}' not found."
