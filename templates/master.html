@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Master File</title>
+    <style>
+        /* Your existing CSS styles */
+
+        /* Style for the master table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            font-family: Arial, sans-serif;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Master File</h1>
+        <table>
+            <thead>
+                <tr>
+                    <th>line</th>
+                    <th>tdate</th>
+                    <th>DESCR</th>
+                    <th>st</th>
+                    <th>nd</th>
+                    <th>tgap</th>
+                    <!-- Add more columns as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in master_data %}
+                <tr>
+                    <td>{{ row['line'] }}</td>
+                    <td>{{ row['tdate'] }}</td>
+                    <td>{{ row['DESCR'] }}</td>
+                    <td>{{ row['st'] }}</td>
+                    <td>{{ row['nd'] }}</td>
+                    <td>{{ row['tgap'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
