@@ -29,11 +29,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Upload Successful!</h1>
+        <h1>Upload Successful! Check the Master File to See Your Updated Sheet</h1>
         <p>{{ message }}</p>
-        <form action="{{ url_for('process', collection_name=collection_name) }}" method="post">
-            <button type="submit">Process</button>
-        </form>
         <a href="{{ url_for('index') }}">Go Back</a>
     </div>
 </body>
