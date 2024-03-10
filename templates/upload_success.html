@@ -25,13 +25,31 @@
         h1 {
             color: #4caf50;
         }
+        .download-btn {
+    display: inline-block;
+    background-color: #4caf50;
+    margin-top: 30px;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none; /* Add this line to remove underline */
+}
+
+    .download-btn:hover {
+        background-color: #45a049;
+    }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Upload Successful! Check the Master File to See Your Updated Sheet</h1>
         <p>{{ message }}</p>
-        <a href="{{ url_for('index') }}">Go Back</a>
+        <a href="{{ url_for('index') }}" class="download-btn">Go Back</a>
+        <a href="{{ master_file_link }}" class="download-btn">Download Master File</a>
+        <a href="/master" class="download-btn">View Master File</a>
     </div>
 </body>
 </html>

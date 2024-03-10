@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Upload Excel Files</title>
+    <title>Excel Files Handler - EFH</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -47,6 +47,52 @@
             font-size: 16px;
             font-weight: bold;
         }
+
+        .download-master-container {
+    text-align: center;
+}
+
+.download-btn {
+    display: inline-block;
+    background-color: #4caf50;
+    margin-top: 30px;
+    color: #fff;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-decoration: none; /* Add this line to remove underline */
+}
+
+    .download-btn:hover {
+        background-color: #45a049;
+    }
+
+    table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 30px;
+                font-family: Arial, sans-serif;
+            }
+
+            th, td {
+                border: 1px solid #dddddd;
+                text-align: left;
+                padding: 8px;
+            }
+
+            th {
+                background-color: #f2f2f2;
+            }
+
+            tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            tr:hover {
+                background-color: #dddddd;
+            }
     </style>
 </head>
 <body>
@@ -54,10 +100,33 @@
         <h1>Upload Excel Files</h1>
         <form action="/upload" method="post" enctype="multipart/form-data">
             <label for="file-upload" class="upload-btn">Choose Files</label>
-            <input id="file-upload" type="file" name="files[]" multiple accept=".xls,.xlsx" onchange="displaySelectedFiles(this)">
+            <input id="file-upload" type="file" name="files[]" multiple accept=".xls,.xlsx" onchange="displaySelectedFiles(this)" required>
             <span id="file-label" class="file-label">No file chosen</span>
             <button type="submit" class="upload-btn">Upload Files</button>
         </form>
+        {% if master_file_link %}
+        <div class="download-master-container">
+            <a href="{{ master_file_link }}" class="download-btn">Download Master File</a>
+            <a href="/master" class="download-btn">View Master File</a>
+        </div>
+        {% endif %}
+        <h2>Upload History</h2>
+        <table class="inventory-table">
+            <thead>
+                <tr>
+                    <th>File Name</th>
+                    <th>Upload/Process Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for file_data in inventory %}
+                <tr>
+                    <td>{{ file_data.filename }}</td>
+                    <td>{{ file_data.upload_date }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 
     <script>
