@@ -26,12 +26,14 @@
         }
         form {
             text-align: center;
+            display: flex;
+            flex-direction: column;
         }
         input[type="file"] {
             display: none;
         }
         .upload-btn {
-            display: inline-block;
+            display: block; /* Change from inline-block to block */
             background-color: #4caf50;
             color: #fff;
             padding: 10px 20px;
@@ -39,6 +41,7 @@
             border-radius: 4px;
             cursor: pointer;
             transition: background-color 0.3s;
+            margin-bottom: 10px;
         }
         .upload-btn:hover {
             background-color: #45a049;
@@ -47,86 +50,153 @@
             font-size: 16px;
             font-weight: bold;
         }
-
         .download-master-container {
-    text-align: center;
-}
-
-.download-btn {
-    display: inline-block;
-    background-color: #4caf50;
-    margin-top: 30px;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-    text-decoration: none; /* Add this line to remove underline */
-}
-
-    .download-btn:hover {
-        background-color: #45a049;
+            text-align: center;
+        }
+        .download-btn {
+            display: inline-block;
+            background-color: #4caf50;
+            margin-top: 30px;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none; /* Add this line to remove underline */
+            margin-bottom: 10px;
+        }
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+        .table-container {
+            overflow-x: auto; /* Enable horizontal scrolling */
+        }
+        table {
+            width: 100%; /* Adjusted width to fit the container */
+            border-collapse: collapse;
+            font-family: Arial, sans-serif;
+        }
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #dddddd;
+        }
+        ul {
+            padding: 0; /* Remove default padding */
+            list-style-type: none; /* Remove bullet points */
+        }
+        li {
+            display: inline-block; /* Display list items inline */
+            margin-right: 10px; /* Add spacing between list items */
+        }
+        .user-info {
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        
+        .user-info p {
+            margin: 0;
+            font-size: 14px;
+        }
+        
+        .user-info form {
+            display: inline-block;
+            margin-left: 10px;
+        }
+        
+        .user-info button {
+            background-color: #4caf50;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .user-info button:hover {
+            background-color: #45a049;
+        }
+        /* Responsive styles */
+        @media only screen and (max-width: 600px) {
+            form {
+                display: block;
+            }
+            .upload-btn, .download-btn {
+                display: block; /* Change from inline-block to block */
+                margin-left: auto;
+                margin-right: auto;
+            }
+            .user-info {
+        text-align: center;
+        margin-bottom: 20px;
     }
-
-    table {
-                width: 100%;
-                border-collapse: collapse;
-                margin-top: 30px;
-                font-family: Arial, sans-serif;
-            }
-
-            th, td {
-                border: 1px solid #dddddd;
-                text-align: left;
-                padding: 8px;
-            }
-
-            th {
-                background-color: #f2f2f2;
-            }
-
-            tr:nth-child(even) {
-                background-color: #f2f2f2;
-            }
-
-            tr:hover {
-                background-color: #dddddd;
-            }
+    
+    .user-info form {
+        display: block;
+        margin-top: 10px;
+    }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <div class="user-info">
+            {% if current_user.is_authenticated %}
+            <p>Logged in as: {{ current_user.username }}</p>
+            <form action="/logout" method="post">
+                <button type="submit">Logout</button>
+            </form>
+            {% else %}
+            <p>Not logged in</p>
+            {% endif %}
+        </div>
         <h1>Upload Excel Files</h1>
         <form action="/upload" method="post" enctype="multipart/form-data">
             <label for="file-upload" class="upload-btn">Choose Files</label>
             <input id="file-upload" type="file" name="files[]" multiple accept=".xls,.xlsx" onchange="displaySelectedFiles(this)" required>
             <span id="file-label" class="file-label">No file chosen</span>
-            <button type="submit" class="upload-btn">Upload Files</button>
+            <button type="submit" class="upload-btn">Upload Files and Process</button>
         </form>
         {% if master_file_link %}
         <div class="download-master-container">
-            <a href="{{ master_file_link }}" class="download-btn">Download Master File</a>
+            <a href="/download_master" class="download-btn">Download Master File</a>
             <a href="/master" class="download-btn">View Master File</a>
+            <ul>
+                {% for line in lines %}
+                    <li><a href="/line/{{ line }}" class="download-btn">View Line {{ line }}</a></li>
+                {% endfor %}
+            </ul>
         </div>
         {% endif %}
         <h2>Upload History</h2>
-        <table class="inventory-table">
-            <thead>
-                <tr>
-                    <th>File Name</th>
-                    <th>Upload/Process Date</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for file_data in inventory %}
-                <tr>
-                    <td>{{ file_data.filename }}</td>
-                    <td>{{ file_data.upload_date }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="table-container"> <!-- Container for horizontal scrolling -->
+            <table class="inventory-table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Upload/Process Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for file_data in inventory %}
+                    <tr>
+                        <td>{{ file_data.filename }}</td>
+                        <td>{{ file_data.upload_date }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <script>

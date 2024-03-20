@@ -41,15 +41,29 @@
     .download-btn:hover {
         background-color: #45a049;
     }
-    </style>
+    ul {
+            padding: 0; /* Remove default padding */
+            list-style-type: none; /* Remove bullet points */
+        }
+        li {
+            display: inline-block; /* Display list items inline */
+            margin-right: 10px; /* Add spacing between list items */
+        }
+</style>
 </head>
 <body>
     <div class="container">
         <h1>Upload Successful! Check the Master File to See Your Updated Sheet</h1>
         <p>{{ message }}</p>
         <a href="{{ url_for('index') }}" class="download-btn">Go Back</a>
-        <a href="{{ master_file_link }}" class="download-btn">Download Master File</a>
+        <a href="/download_master" class="download-btn">Download Master File</a>
         <a href="/master" class="download-btn">View Master File</a>
+        <h2>View Line Data</h2>
+        <ul>
+            {% for line in lines %}
+                <li><a href="/line/{{ line }}" class="download-btn">View Line {{ line }}</a></li>
+            {% endfor %}
+        </ul>
     </div>
 </body>
 </html>

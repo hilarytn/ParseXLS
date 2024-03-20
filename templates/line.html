@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Master File</title>
+    <title>Line {{ line_number }}</title>
     <style>
         /* Style for the download button */
     .download-btn {
@@ -50,17 +50,17 @@
         tr:hover {
             background-color: #dddddd;
         }
+        /* Style for line links */
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Master File</h1>
-        {% if master_file_link %}
-        <div class="download-master-container">
-            <a href="/download_master" class="download-btn">Download Master File</a>
-            <a href="{{ url_for('index') }}" class="download-btn"> Back</a>
+        <h1>Line {{ line_number }}</h1>
+        <div class="download-container">
+            <a href="#" class="download-btn">Download Line {{ line_number }}</a>
+            <a href="{{ url_for('index') }}" class="download-btn">Go Back</a>
         </div>
-        {% endif %}
         <table>
             <thead>
                 <tr>
@@ -70,11 +70,11 @@
                     <th>st</th>
                     <th>nd</th>
                     <th>tgap</th>
-                    <!-- Add more columns as needed -->
                 </tr>
             </thead>
             <tbody>
-                {% for row in master_data %}
+                <!-- Loop through line_data and display each row -->
+                {% for row in line_data %}
                 <tr>
                     <td>{{ row['line'] }}</td>
                     <td>{{ row['tdate'] }}</td>
@@ -82,10 +82,13 @@
                     <td>{{ row['st'] }}</td>
                     <td>{{ row['nd'] }}</td>
                     <td>{{ row['tgap'] }}</td>
+                    <!-- Add more columns as needed -->
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+        <!-- Display the pie chart -->
+        <img src="data:image/png;base64,{{ plot }}" alt="Pie Chart">
     </div>
 </body>
 </html>
