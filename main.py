@@ -122,7 +122,7 @@ def index():
                 filename, upload_date, process_date = line.strip().split(',')
                 inventory.append({'filename': filename, 'upload_date': upload_date, 'process_date': process_date})
     lines = get_available_lines()
-    return render_template('index.html', master_file_link=master_file_link, inventory=inventory, current_user=current_user)
+    return render_template('index.html', master_file_link=master_file_link, inventory=inventory, current_user=current_user, lines=lines)
 
 @app.route('/upload', methods=['POST'])
 @login_required
