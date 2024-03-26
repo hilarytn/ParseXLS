@@ -12,6 +12,8 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://vbnesasy_vbnesasy:2xl#-%{oVRl,@
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.secret_key = 'd491df968bb27646946de16c3931b9ca'
 
+application = app
+
 db = SQLAlchemy(app)
 login_manager = LoginManager(app)
 login_manager.login_view = 'login'
