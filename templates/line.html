@@ -102,6 +102,8 @@
         <!-- Display the pie chart -->
         <canvas id="chart-container" style="height: 300px; width: 400px;"></canvas>
         <canvas id="bar-chart-container" style="height: 300px; width: 400px;"></canvas>
+        <canvas id="tgaps-count-chart-container" style="height: 300px; width: 400px;"></canvas>
+        
     </div>
     <script>
     
@@ -230,6 +232,67 @@ function visualizeBarData(data) {
         }
     }
 });
+}
+
+fetch(`/line_data/${line_number}`)
+            .then(response => response.json())
+            .then(data => {
+                // Once the data is received, visualize it using Chart.js or any other visualization library
+                visualizeTgapsAndCountData(data);
+            })
+            .catch(error => console.error('Error fetching line data:', error));
+// Function to visualize tgaps and count data using Chart.js
+function visualizeTgapsAndCountData(data) {
+    // Aggregate data
+    const products = [];
+    const tgaps = [];
+    const counts = [];
+
+    // Extract product names and corresponding data
+    data.forEach(row => {
+        const productName = row['DESCR'];
+        const tgap = row['tgap'];
+
+        // Find existing product or add new one
+        const index = products.indexOf(productName);
+        if (index === -1) {
+            products.push(productName);
+            tgaps.push(tgap);
+            counts.push(1);
+        } else {
+            tgaps[index] += tgap;
+            counts[index]++;
+        }
+    });
+
+    // Create the chart
+    var ctx = document.getElementById('tgaps-count-chart-container').getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: products,
+            datasets: [{
+                label: 'Tgaps',
+                data: tgaps,
+                backgroundColor: 'rgba(255, 99, 132, 0.5)',
+                borderWidth: 1
+            }, {
+                label: 'Count',
+                data: counts,
+                backgroundColor: 'rgba(54, 162, 235, 0.5)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    });
 }
 
     </script>
