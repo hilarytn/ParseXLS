@@ -139,10 +139,10 @@ function visualizeLineData(data) {
                     'rgba(255, 99, 132, 0.5)',
                     'rgba(54, 162, 235, 0.5)',
                     'rgba(255, 206, 86, 0.5)',
+                    'rgba(255, 0, 0, 0.5)',
                     'rgba(75, 192, 192, 0.5)',
                     'rgba(153, 102, 255, 0.5)',
-                    'rgba(255, 159, 64, 0.5)',
-                    'rgba(255, 0, 0, 0.5)', // Red
+                    'rgba(255, 159, 90, 0.5)',
                     'rgba(0, 255, 0, 0.5)', // Green
                     'rgba(0, 0, 255, 0.5)', // Blue
                     'rgba(128, 128, 128, 0.5)', // Gray
@@ -167,6 +167,7 @@ fetch(`/line_data/${line_number}`)
             })
             .catch(error => console.error('Error fetching line data:', error));
 // Function to visualize bar data using Chart.js
+// Function to visualize bar data using Chart.js
 function visualizeBarData(data) {
     // Aggregate data
     const products = [];
@@ -185,48 +186,50 @@ function visualizeBarData(data) {
         if (index === -1) {
             products.push(productName);
             tgaps.push(tgap);
-            downtimes.push(downtime);
+            downtimes.push(downtime); // Initialize downtime with the current row's value
             counts.push(1);
         } else {
             tgaps[index] += tgap;
-            downtimes[index] += downtime;
+            downtimes[index] += downtime; // Accumulate downtime
             counts[index]++;
         }
     });
 
+    console.log('Aggregated Downtimes:', downtimes);
     // Create the chart
     var ctx = document.getElementById('bar-chart-container').getContext('2d');
     var myChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: products,
-            datasets: [{
-                label: 'Tgap',
-                data: tgaps,
-                backgroundColor: 'rgba(255, 99, 132, 0.5)',
-                borderWidth: 1
-            }, {
-                label: 'Downtime',
-                data: downtimes,
-                backgroundColor: 'rgba(54, 162, 235, 0.5)',
-                borderWidth: 1
-            }, {
-                label: 'Count',
-                data: counts,
-                backgroundColor: 'rgba(255, 206, 86, 0.5)',
-                borderWidth: 1
+    type: 'bar',
+    data: {
+        labels: products,
+        datasets: [{
+            label: 'Tgap',
+            data: tgaps,
+            backgroundColor: 'rgba(255, 99, 132, 0.5)',
+            borderWidth: 1
+        }, {
+            label: 'Downtime',
+            data: downtimes,
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            borderWidth: 1
+        }, {
+            label: 'Count',
+            data: counts,
+            backgroundColor: 'rgba(255, 206, 86, 0.5)',
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    min: 0.0001 // Set a minimum value for the y-axis ticks
+                }
             }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
         }
-    });
+    }
+});
 }
 
     </script>
