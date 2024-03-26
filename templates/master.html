@@ -55,6 +55,7 @@
 <body>
     <div class="container">
         <h1>Master File</h1>
+        <a href="{{ url_for('index') }}" class="download-btn">Go Back</a>
         {% if master_file_link %}
         <div class="download-master-container">
             <a href="/download_master" class="download-btn">Download Master File</a>
