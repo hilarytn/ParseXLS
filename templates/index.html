@@ -173,7 +173,7 @@
             <a href="/master" class="download-btn">View Master File</a>
             <ul>
                 {% for line in lines %}
-                    <li><a href="/line/{{ line }}" class="download-btn">View Line {{ line }}</a></li>
+                    <li><a href="/line/{{ line }}" class="download-btn visualize">View Line {{ line }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -192,6 +192,12 @@
                     <tr>
                         <td>{{ file_data.filename }}</td>
                         <td>{{ file_data.upload_date }}</td>
+                        <td>
+                            <form action="/delete/{{ file_data.my_uuid }}" method="post">
+                                <input type="hidden" name="filename" value="{{ file_data.filename }}">
+                                <button type="submit">Delete</button>
+                            </form>
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
