@@ -3,26 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.jpg') }}" type="image/x-icon">
     <title>Excel Files Handler - EFH</title>
     <style>
+        /* Dark theme */
         body {
+            background-color: #222; /* Dark gray */
+            color: #fff; /* White text */
             font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
         }
         .container {
             max-width: 600px;
             margin: 50px auto;
             padding: 20px;
-            background-color: #fff;
+            background-color: #333; /* Darker gray */
             border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1); /* White shadow */
         }
         h1 {
             text-align: center;
             margin-bottom: 30px;
-            color: #333;
+            color: #fff; /* White text */
         }
         form {
             text-align: center;
@@ -32,10 +35,10 @@
         input[type="file"] {
             display: none;
         }
-        .upload-btn {
-            display: block; /* Change from inline-block to block */
-            background-color: #4caf50;
-            color: #fff;
+        .upload-btn, .download-btn {
+            display: block;
+            background-color: #007bff; /* Blue */
+            color: #fff; /* White text */
             padding: 10px 20px;
             border: none;
             border-radius: 4px;
@@ -43,8 +46,8 @@
             transition: background-color 0.3s;
             margin-bottom: 10px;
         }
-        .upload-btn:hover {
-            background-color: #45a049;
+        .upload-btn:hover, .download-btn:hover {
+            background-color: #0056b3; /* Darker blue */
         }
         .file-label {
             font-size: 16px;
@@ -52,22 +55,6 @@
         }
         .download-master-container {
             text-align: center;
-        }
-        .download-btn {
-            display: inline-block;
-            background-color: #4caf50;
-            margin-top: 30px;
-            color: #fff;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-            text-decoration: none; /* Add this line to remove underline */
-            margin-bottom: 10px;
-        }
-        .download-btn:hover {
-            background-color: #45a049;
         }
         .table-container {
             overflow-x: auto; /* Enable horizontal scrolling */
@@ -77,19 +64,20 @@
             border-collapse: collapse;
             font-family: Arial, sans-serif;
         }
+        th {
+            background-color: #444; /* Dark gray */
+            color: #fff; /* White text */
+        }
         th, td {
             border: 1px solid #dddddd;
             text-align: left;
             padding: 8px;
         }
-        th {
-            background-color: #f2f2f2;
-        }
         tr:nth-child(even) {
-            background-color: #f2f2f2;
+            background-color: #555; /* Darker gray */
         }
         tr:hover {
-            background-color: #dddddd;
+            background-color: #666; /* Even darker gray */
         }
         ul {
             padding: 0; /* Remove default padding */
@@ -103,28 +91,24 @@
             text-align: right;
             margin-bottom: 20px;
         }
-        
         .user-info p {
             margin: 0;
             font-size: 14px;
         }
-        
         .user-info form {
             display: inline-block;
             margin-left: 10px;
         }
-        
         .user-info button {
-            background-color: #4caf50;
+            background-color: #007bff; /* Blue */
             color: white;
             padding: 8px 16px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
         }
-        
         .user-info button:hover {
-            background-color: #45a049;
+            background-color: #0056b3; /* Darker blue */
         }
         /* Responsive styles */
         @media only screen and (max-width: 600px) {
@@ -132,19 +116,18 @@
                 display: block;
             }
             .upload-btn, .download-btn {
-                display: block; /* Change from inline-block to block */
+                display: block;
                 margin-left: auto;
                 margin-right: auto;
             }
             .user-info {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-    
-    .user-info form {
-        display: block;
-        margin-top: 10px;
-    }
+                text-align: center;
+                margin-bottom: 20px;
+            }
+            .user-info form {
+                display: block;
+                margin-top: 10px;
+            }
         }
     </style>
 </head>
@@ -160,12 +143,12 @@
             <p>Not logged in</p>
             {% endif %}
         </div>
-        <h1>Upload Excel Files</h1>
+        <h1>Smart Wash Data Dashboard Input</h1>
         <form action="/upload" method="post" enctype="multipart/form-data">
             <label for="file-upload" class="upload-btn">Choose Files</label>
             <input id="file-upload" type="file" name="files[]" multiple accept=".xls,.xlsx" onchange="displaySelectedFiles(this)" required>
             <span id="file-label" class="file-label">No file chosen</span>
-            <button type="submit" class="upload-btn">Upload Files and Process</button>
+            <button type="submit" class="upload-btn">Upload</button>
         </form>
         {% if master_file_link %}
         <div class="download-master-container">
