@@ -331,6 +331,38 @@ def line_data(line_number):
 def login_form():
     return render_template('login.html')
 
+@app.route('/index2', methods=['GET'])
+def index2():
+    return render_template('index2.html')
+
+@app.route('/line2', methods=['GET'])
+def line2():
+    return render_template('line2.html')
+
+@app.route('/login2', methods=['GET'])
+def login2():
+    return render_template('login2.html')
+
+@app.route('/master2', methods=['GET'])
+def master2():
+    return render_template('master2.html')
+
+@app.route('/process2', methods=['GET'])
+def process2():
+    return render_template('process_failure2.html')
+
+@app.route('/process3', methods=['GET'])
+def process3():
+    return render_template('process_success2.html')
+
+@app.route('/upload-failure2', methods=['GET'])
+def upf():
+    return render_template('upload_failure2.html')
+
+@app.route('/upload-success2', methods=['GET'])
+def ups():
+    return render_template('upload_success2.html')
+
 @app.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():

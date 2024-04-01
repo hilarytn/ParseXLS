@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='img/favicon.jpg') }}" type="image/x-icon">
+    <title>Master File</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css"> <!-- Font Awesome CSS -->
+    <style>
+        /* Style for the download button */
+        .download-btn {
+            display: inline-block;
+            background-color: #4caf50;
+            margin-top: 30px;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none; /* Add this line to remove underline */
+        }
+        .download-btn:hover {
+            background-color: #45a049;
+        }
+
+        /* Style for the login button */
+        .login-btn {
+            background-color: #333;
+            border: none;
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            text-decoration: none; /* Add this line to remove underline */
+        }
+        .login-btn:hover {
+            background-color: #555;
+        }
+
+        /* Style for the master table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+            font-family: Arial, sans-serif;
+        }
+
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            position: sticky;  /* Make the header sticky */
+            top: 0;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <p></p>
+        <a href="{{ url_for('index') }}" class="login-btn"><i class="fas fa-arrow-left"></i></a>
+        <h1>Master File</h1>
+        {% if master_file_link %}
+        <div class="download-master-container">
+            <a href="/download_master" class="download-btn">Download Master File</a>
+            <a href="{{ url_for('index') }}" class="download-btn"> Back</a>
+        </div>
+        {% endif %}
+        <table>
+            <thead>
+                <tr>
+                    <th>line</th>
+                    <th>tdate</th>
+                    <th>DESCR</th>
+                    <th>st</th>
+                    <th>nd</th>
+                    <th>tgap</th>
+                    <th>downtime</th>
+                    <!-- Add more columns as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in master_data %}
+                <tr>
+                    <td>{{ row['line'] }}</td>
+                    <td>{{ row['tdate'] }}</td>
+                    <td>{{ row['DESCR'] }}</td>
+                    <td>{{ row['st'] }}</td>
+                    <td>{{ row['nd'] }}</td>
+                    <td>{{ row['tgap'] }}</td>
+                    <td>{{ row['downtime'] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>
